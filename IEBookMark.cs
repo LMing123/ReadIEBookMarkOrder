@@ -33,14 +33,16 @@ namespace ReadIEBookMarkOrder
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SHGetPathFromIDListW(IntPtr pidl, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder pszPath);
 
-        public static BookMarkModel GetMainFavoriteBookMarks()
+        //public static BookMarkModel GetMainFavoriteBookMarks()
+        //{
+        //    return GetBookMarks($"{RegistryPah}\\{FavoritesKey}",$"{IEFavoritesPath}", "Main", -1);            
+        //}
+        public static (BookMarkModel, Dictionary<string, int>) GetMainFavoriteBookMarksWithOrderList()
         {
-            return GetBookMarks($"{RegistryPah}\\{FavoritesKey}",$"{IEFavoritesPath}","fdskjhfkds",-1);            
+            OrderList = new Dictionary<string, int>();
+            return (GetBookMarks($"{RegistryPah}\\{FavoritesKey}", $"{IEFavoritesPath}", "Main", -1), OrderList);
         }
-        public static Dictionary<string,int> GetOrderList()
-        {
-            return OrderList;
-        }
+
         static BookMarkModel GetBookMarks(string registryPath,string path,string name,int sortIndex)
         {
             var result = GetBookMarkSort(registryPath, path);

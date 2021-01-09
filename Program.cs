@@ -33,7 +33,7 @@ namespace ReadIEBookMarkOrder
         {
 
             var reuslt = IEBookMark.GetMainFavoriteBookMarks();
-            var reuslt2 = IEBookMark.GetOrderList();
+            var reuslt2 = IEBookMark.GetMainFavoriteBookMarksWithOrderList();
 
             Console.ReadLine();
         }
