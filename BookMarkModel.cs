@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TestReadMenuOrder;
 
 namespace ReadIEBookMarkOrder
 {
@@ -10,5 +11,6 @@ namespace ReadIEBookMarkOrder
     {
         public string FullName { get; set; }
         public int SortIndex { get; set; }
+        public BookMarkType BookMarkType { get; set; }
     }
 }

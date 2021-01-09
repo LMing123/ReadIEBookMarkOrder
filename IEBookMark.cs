@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using TestReadMenuOrder;
 
 namespace ReadIEBookMarkOrder
 {
@@ -55,7 +56,8 @@ namespace ReadIEBookMarkOrder
                 StringBuilder fullFileName = new StringBuilder(666);
                 if (pIdList == IntPtr.Zero || !SHGetPathFromIDListW(pIdList, fullFileName)) return (false, null, "can not get IDList or SHGetPathFromIDListW failed");
 
-                result.Add(new BookMarkModel() { FullName = GetName(fullFileName.ToString()), SortIndex = sortIndex });
+                var bookMarkPath = $"{IEFavoritesPath}\\{GetName(fullFileName.ToString())}";
+                result.Add(new BookMarkModel() { FullName = bookMarkPath, SortIndex = sortIndex,BookMarkType=Utilities.GetBookMarkType(bookMarkPath)});
                 baseOffset += itemSize;
             }
             Marshal.FreeHGlobal(pVaule);
