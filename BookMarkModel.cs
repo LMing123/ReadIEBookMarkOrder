@@ -12,5 +12,6 @@ namespace ReadIEBookMarkOrder
         public string FullName { get; set; }
         public int SortIndex { get; set; }
         public BookMarkType BookMarkType { get; set; }
+        public List<BookMarkModel> SubBookMark { get; set; }
     }
 }

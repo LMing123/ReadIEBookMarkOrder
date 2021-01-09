@@ -27,13 +27,54 @@ namespace ReadIEBookMarkOrder
         static readonly int ItemSortIndexOffset = 4;
         static readonly int ItemIDListOffset = 8;
 
+        static Dictionary<string, int> OrderList = new Dictionary<string, int>();
+
         [DllImport("shell32.dll", SetLastError = true, ExactSpelling = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SHGetPathFromIDListW(IntPtr pidl, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder pszPath);
 
-        public static (bool, List<BookMarkModel>,string message) GetBookMarkSort()
+        public static BookMarkModel GetMainFavoriteBookMarks()
         {
-            byte[] value = GetOrderFromRegistry($"{RegistryPah}\\{FavoritesKey}");
+            return GetBookMarks($"{RegistryPah}\\{FavoritesKey}",$"{IEFavoritesPath}","fdskjhfkds",-1);            
+        }
+        public static Dictionary<string,int> GetOrderList()
+        {
+            return OrderList;
+        }
+        static BookMarkModel GetBookMarks(string registryPath,string path,string name,int sortIndex)
+        {
+            var result = GetBookMarkSort(registryPath, path);
+            BookMarkModel bm = new BookMarkModel()
+            {
+                FullName = name,
+                SortIndex = sortIndex,
+                BookMarkType = BookMarkType.Directory,
+
+            };
+            bm.SubBookMark = new List<BookMarkModel>();
+            if (result.Item1)
+            {
+                foreach (var item in result.Item2)
+                {
+                    if (item.BookMarkType == BookMarkType.Directory)
+                    {
+                        var temName = GetName(item.FullName);
+                        var temResult = GetBookMarks($"{registryPath}\\{temName}", $"{path}\\{temName}", item.FullName, item.SortIndex);
+                        if (temResult != null) bm.SubBookMark.Add(temResult);
+                    }
+                    else
+                    {
+                        bm.SubBookMark.Add(item);
+                    }
+                }
+            }
+            else bm.SubBookMark = null;
+            return bm;
+
+        }
+        public static (bool, List<BookMarkModel>,string message) GetBookMarkSort(string registryPath,string path)
+        {
+            byte[] value = GetOrderFromRegistry(registryPath);
             if (value == null || value.Length == 0) return (false, null,"can not access registry value");
             int valueSize = value.Length;
             var pVaule = Marshal.AllocHGlobal(valueSize);
@@ -56,7 +97,8 @@ namespace ReadIEBookMarkOrder
                 StringBuilder fullFileName = new StringBuilder(666);
                 if (pIdList == IntPtr.Zero || !SHGetPathFromIDListW(pIdList, fullFileName)) return (false, null, "can not get IDList or SHGetPathFromIDListW failed");
 
-                var bookMarkPath = $"{IEFavoritesPath}\\{GetName(fullFileName.ToString())}";
+                var bookMarkPath = $"{path}\\{GetName(fullFileName.ToString())}";
+                OrderList.Add(bookMarkPath, sortIndex);
                 result.Add(new BookMarkModel() { FullName = bookMarkPath, SortIndex = sortIndex,BookMarkType=Utilities.GetBookMarkType(bookMarkPath)});
                 baseOffset += itemSize;
             }

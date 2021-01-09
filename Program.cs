@@ -32,15 +32,9 @@ namespace ReadIEBookMarkOrder
         static void Main(string[] args)
         {
 
-            var reuslt = IEBookMark.GetBookMarkSort();
-            reuslt.Item2.ForEach(x => Console.WriteLine($"Name: {x.FullName} SortIndex:{x.SortIndex}"));
-            foreach (var item in reuslt.Item2)
-            {
-                var path = $"{IEBookMark.IEFavoritesPath}\\{item.FullName}";
-                if (File.Exists(path)) Console.WriteLine($"{item.FullName} is file");
-                else if(Directory.Exists(path)) Console.WriteLine($"{item.FullName} is directory");
-                else Console.WriteLine($"{item.FullName} is unknow");
-            }
+            var reuslt = IEBookMark.GetMainFavoriteBookMarks();
+            var reuslt2 = IEBookMark.GetOrderList();
+
             Console.ReadLine();
         }
     }
