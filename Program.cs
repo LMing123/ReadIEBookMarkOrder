@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -33,6 +34,13 @@ namespace ReadIEBookMarkOrder
 
             var reuslt = IEBookMark.GetBookMarkSort();
             reuslt.Item2.ForEach(x => Console.WriteLine($"Name: {x.FullName} SortIndex:{x.SortIndex}"));
+            foreach (var item in reuslt.Item2)
+            {
+                var path = $"{IEBookMark.IEFavoritesPath}\\{item.FullName}";
+                if (File.Exists(path)) Console.WriteLine($"{item.FullName} is file");
+                else if(Directory.Exists(path)) Console.WriteLine($"{item.FullName} is directory");
+                else Console.WriteLine($"{item.FullName} is unknow");
+            }
             Console.ReadLine();
         }
     }

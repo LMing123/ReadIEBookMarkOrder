@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -16,6 +17,8 @@ namespace ReadIEBookMarkOrder
         public static readonly string FavoritesKey = "Favorites";
         public static readonly string OrderValueName = "Order";
 
+        public static readonly string IEFavoritesPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\\Favorites";
+
         static readonly int ItemCountOffset = 16; // offset of count value that ITEMIDLIST array number
         static readonly int ItemListBeginOffset = 20; // offset of begin that ITEMIDLIST array 
 
@@ -26,6 +29,7 @@ namespace ReadIEBookMarkOrder
         [DllImport("shell32.dll", SetLastError = true, ExactSpelling = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SHGetPathFromIDListW(IntPtr pidl, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder pszPath);
+
         public static (bool, List<BookMarkModel>,string message) GetBookMarkSort()
         {
             byte[] value = GetOrderFromRegistry($"{RegistryPah}\\{FavoritesKey}");
@@ -50,10 +54,13 @@ namespace ReadIEBookMarkOrder
                 var pIdList = ReadIDList(ref pVaule, valueSize, baseOffset + ItemIDListOffset, idListSize);
                 StringBuilder fullFileName = new StringBuilder(666);
                 if (pIdList == IntPtr.Zero || !SHGetPathFromIDListW(pIdList, fullFileName)) return (false, null, "can not get IDList or SHGetPathFromIDListW failed");
-                result.Add(new BookMarkModel() { FullName = fullFileName.ToString(), SortIndex = sortIndex });
+
+                result.Add(new BookMarkModel() { FullName = GetName(fullFileName.ToString()), SortIndex = sortIndex });
                 baseOffset += itemSize;
             }
+            Marshal.FreeHGlobal(pVaule);
             return (true,result,"fuck success");
+
         }
         static IntPtr ReadIDList(ref IntPtr source, int sourceSize, int offset, int idListSize)
         {
@@ -97,6 +104,12 @@ namespace ReadIEBookMarkOrder
             {
                 return (byte[])key?.GetValue(OrderValueName);
             }
+        }
+
+        static string GetName(string path)
+        {
+           
+            return  Path.GetFileName(path);
         }
     }
 }
