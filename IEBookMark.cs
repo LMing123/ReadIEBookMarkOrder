@@ -12,7 +12,7 @@ namespace ReadIEBookMarkOrder
 {
 
     
-    class IEBookMark
+    public class IEBookMark
     {
         public static readonly string RegistryPah = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MenuOrder";
         public static readonly string FavoritesKey = "Favorites";
@@ -37,28 +37,28 @@ namespace ReadIEBookMarkOrder
         //{
         //    return GetBookMarks($"{RegistryPah}\\{FavoritesKey}",$"{IEFavoritesPath}", "Main", -1);            
         //}
-        public static (BookMarkModel, Dictionary<string, int>) GetMainFavoriteBookMarksWithOrderList()
+        public static (IEBookMarkModel, Dictionary<string, int>) GetMainFavoriteBookMarksWithOrderList()
         {
             OrderList = new Dictionary<string, int>();
             return (GetBookMarks($"{RegistryPah}\\{FavoritesKey}", $"{IEFavoritesPath}", "Main", -1), OrderList);
         }
 
-        static BookMarkModel GetBookMarks(string registryPath,string path,string name,int sortIndex)
+        static IEBookMarkModel GetBookMarks(string registryPath,string path,string name,int sortIndex)
         {
             var result = GetBookMarkSort(registryPath, path);
-            BookMarkModel bm = new BookMarkModel()
+            IEBookMarkModel bm = new IEBookMarkModel()
             {
                 FullName = name,
                 SortIndex = sortIndex,
-                BookMarkType = BookMarkType.Directory,
+                BookMarkType = BookMarkType.Folder,
 
             };
-            bm.SubBookMark = new List<BookMarkModel>();
+            bm.SubBookMark = new List<IEBookMarkModel>();
             if (result.Item1)
             {
                 foreach (var item in result.Item2)
                 {
-                    if (item.BookMarkType == BookMarkType.Directory)
+                    if (item.BookMarkType == BookMarkType.Folder)
                     {
                         var temName = GetName(item.FullName);
                         var temResult = GetBookMarks($"{registryPath}\\{temName}", $"{path}\\{temName}", item.FullName, item.SortIndex);
@@ -74,7 +74,7 @@ namespace ReadIEBookMarkOrder
             return bm;
 
         }
-        public static (bool, List<BookMarkModel>,string message) GetBookMarkSort(string registryPath,string path)
+        public static (bool, List<IEBookMarkModel>,string message) GetBookMarkSort(string registryPath,string path)
         {
             byte[] value = GetOrderFromRegistry(registryPath);
             if (value == null || value.Length == 0) return (false, null,"can not access registry value");
@@ -84,7 +84,7 @@ namespace ReadIEBookMarkOrder
 
             if (!BinaryRead(ref pVaule, valueSize, ItemCountOffset, out int itemCount)) return (false, null,"can not get item count");
 
-            List<BookMarkModel> result = new List<BookMarkModel>();
+            List<IEBookMarkModel> result = new List<IEBookMarkModel>();
             int baseOffset = ItemListBeginOffset;
             for (int i = 0; i < itemCount; i++)
             {
@@ -101,7 +101,7 @@ namespace ReadIEBookMarkOrder
 
                 var bookMarkPath = ($"{path}\\{GetName(fullFileName.ToString())}").ToLower();
                 OrderList.Add(bookMarkPath, sortIndex);
-                result.Add(new BookMarkModel() { FullName = bookMarkPath, SortIndex = sortIndex,BookMarkType=Utilities.GetBookMarkType(bookMarkPath)});
+                result.Add(new IEBookMarkModel() { FullName = bookMarkPath, SortIndex = sortIndex,BookMarkType=Utilities.GetBookMarkType(bookMarkPath)});
                 baseOffset += itemSize;
             }
             Marshal.FreeHGlobal(pVaule);

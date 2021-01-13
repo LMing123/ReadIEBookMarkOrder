@@ -32,7 +32,7 @@ namespace ReadIEBookMarkOrder
         static void Main(string[] args)
         {
 
-            var reuslt = IEBookMark.GetMainFavoriteBookMarks();
+           // var reuslt = IEBookMark.GetMainFavoriteBookMarks();
             var reuslt2 = IEBookMark.GetMainFavoriteBookMarksWithOrderList();
 
             Console.ReadLine();
