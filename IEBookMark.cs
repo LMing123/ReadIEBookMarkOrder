@@ -99,7 +99,7 @@ namespace ReadIEBookMarkOrder
                 StringBuilder fullFileName = new StringBuilder(666);
                 if (pIdList == IntPtr.Zero || !SHGetPathFromIDListW(pIdList, fullFileName)) return (false, null, "can not get IDList or SHGetPathFromIDListW failed");
 
-                var bookMarkPath = $"{path}\\{GetName(fullFileName.ToString())}";
+                var bookMarkPath = ($"{path}\\{GetName(fullFileName.ToString())}").ToLower();
                 OrderList.Add(bookMarkPath, sortIndex);
                 result.Add(new BookMarkModel() { FullName = bookMarkPath, SortIndex = sortIndex,BookMarkType=Utilities.GetBookMarkType(bookMarkPath)});
                 baseOffset += itemSize;
@@ -154,7 +154,6 @@ namespace ReadIEBookMarkOrder
 
         static string GetName(string path)
         {
-           
             return  Path.GetFileName(path);
         }
     }
